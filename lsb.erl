@@ -1,3 +1,5 @@
+#!/usr/bin/escript
+
 -module(lsb).
 -export([load/2, save/3, add_text_to_image/2, filter_byte_chars/1]).
 -export([main/1]).
@@ -98,7 +100,7 @@ get_text_from_image_impl(DecodedText, <<B:1/binary, G:1/binary, R:1/binary, Rest
     end.
     
 
-main([SourceFileName, DestinationFileName, Text | _ ]) ->
+main([SourceFileName, DestinationFileName, Text | _]) ->
     io:format("Source text: \"~ts\"~n", [unicode:characters_to_binary(Text)]),
     FilteresText = filter_byte_chars(Text),
     io:format("Filtered text: ~p~n~n", [FilteresText]),
@@ -106,9 +108,9 @@ main([SourceFileName, DestinationFileName, Text | _ ]) ->
     {ok, Image} = load(bmp, SourceFileName),
 
     NewImageData = add_text_to_image(Image, FilteresText),
-    save(bmp, DestinationFileName, NewImageData),
+    save(bmp, DestinationFileName, NewImageData);
 
-    {ok, NewImage} = parse_contents(NewImageData),
-    
-    io:fwrite("Decoded text: \"~ts\"~n", [get_text_from_image(NewImage)]).
+main([FileName]) ->
+	{ok, Image} = load(bmp, FileName),
+	io:fwrite("Decoded text: \"~ts\"~n", [get_text_from_image(Image)]).
 
