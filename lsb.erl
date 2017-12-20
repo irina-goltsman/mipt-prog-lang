@@ -1,7 +1,7 @@
 #!/usr/bin/escript
 
 -module(lsb).
--export([load/2, save/3, add_text_to_image/2, filter_byte_chars/1]).
+-export([load/2, save/3, add_text_to_image/2, get_text_from_image/1, filter_byte_chars/1]).
 -export([main/1]).
 -define(EOF, [0]).
 -compile(export_all).
@@ -62,11 +62,11 @@ add_text_to_image(Image, Text) ->
     Headers = Image#image.headers,
     <<Headers/bitstring, NewContent/bitstring>>.
 
-add_text_to_image_impl(NewContent, <<>>, RestTextBinary) ->
+add_text_to_image_impl(NewContent, <<>>, _) ->
     NewContent;
 add_text_to_image_impl(NewContent, RestImageContent, <<>>) ->
     <<NewContent/binary, RestImageContent/binary>>;
-add_text_to_image_impl(NewContent, <<RestImageContent:1/binary>>, RestTextBinary) ->
+add_text_to_image_impl(NewContent, <<RestImageContent:1/binary>>, _) ->
 	<<NewContent/binary, RestImageContent/binary>>;
 add_text_to_image_impl(NewContent, <<B:1/binary, G:1/binary, R:1/binary, RestImageContent/binary>>,
                        <<TextChar:1/binary, RestTextBinary/binary>>) ->
@@ -84,7 +84,7 @@ get_text_from_image(Image) ->
     
 get_text_from_image_impl(DecodedText, <<>>) ->
     binary_to_list(DecodedText);
-get_text_from_image_impl(DecodedText, <<RestImageContent:1/binary>>) ->
+get_text_from_image_impl(DecodedText, <<_:1/binary>>) ->
 	binary_to_list(DecodedText);
 get_text_from_image_impl(DecodedText, <<B:1/binary, G:1/binary, R:1/binary, RestImageContent/binary>>) ->
     <<_:5/bitstring, CharPart1:3/bitstring>> = B,
